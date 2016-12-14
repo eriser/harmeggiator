@@ -58,6 +58,13 @@ public:
 
 private:
     //==============================================================================
+    float arpSpeed;
+    int currentNote, lastNoteValue;
+    int time;
+    float rate;
+    SortedSet<int> notes;
+    
+    //==============================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (HarmeggiatorAudioProcessor)
 };
 

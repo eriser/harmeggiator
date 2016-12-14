@@ -22,7 +22,8 @@ HarmeggiatorAudioProcessor::HarmeggiatorAudioProcessor()
                       #endif
                        .withOutput ("Output", AudioChannelSet::stereo(), true)
                      #endif
-                       )
+                       ),
+       arpSpeed(0.1)
 #endif
 {
 }
@@ -87,8 +88,14 @@ void HarmeggiatorAudioProcessor::changeProgramName (int index, const String& new
 //==============================================================================
 void HarmeggiatorAudioProcessor::prepareToPlay (double sampleRate, int samplesPerBlock)
 {
-    // Use this method as the place to do any pre-playback
-    // initialisation that you need..
+    ignoreUnused (samplesPerBlock);
+    
+    notes.clear();
+    currentNote = 0;
+    lastNoteValue = -1;
+    time = 0.0;
+    rate = static_cast<float> (sampleRate);
+    arpSpeed = 0.1;
 }
 
 void HarmeggiatorAudioProcessor::releaseResources()
@@ -121,28 +128,48 @@ bool HarmeggiatorAudioProcessor::isBusesLayoutSupported (const BusesLayout& layo
 }
 #endif
 
-void HarmeggiatorAudioProcessor::processBlock (AudioSampleBuffer& buffer, MidiBuffer& midiMessages)
+void HarmeggiatorAudioProcessor::processBlock (AudioSampleBuffer& buffer, MidiBuffer& midi)
 {
-    const int totalNumInputChannels  = getTotalNumInputChannels();
-    const int totalNumOutputChannels = getTotalNumOutputChannels();
-
-    // In case we have more outputs than inputs, this code clears any output
-    // channels that didn't contain input data, (because these aren't
-    // guaranteed to be empty - they may contain garbage).
-    // This is here to avoid people getting screaming feedback
-    // when they first compile a plugin, but obviously you don't need to keep
-    // this code if your algorithm always overwrites all the output channels.
-    for (int i = totalNumInputChannels; i < totalNumOutputChannels; ++i)
-        buffer.clear (i, 0, buffer.getNumSamples());
-
-    // This is the place where you'd normally do the guts of your plugin's
-    // audio processing...
-    for (int channel = 0; channel < totalNumInputChannels; ++channel)
+    // the audio buffer in a midi effect will have zero channels!
+    jassert (buffer.getNumChannels() == 0);
+    
+    // however we use the buffer to get timing information
+    const int numSamples = buffer.getNumSamples();
+    
+    // get note duration
+    const int noteDuration = static_cast<int> (std::ceil (rate * 0.25f * (0.1f + (1.0f - (arpSpeed)))));
+    
+    MidiMessage msg;
+    int ignore;
+    
+    for (MidiBuffer::Iterator it (midi); it.getNextEvent (msg, ignore);)
     {
-        float* channelData = buffer.getWritePointer (channel);
-
-        // ..do something to the data...
+        if      (msg.isNoteOn() && notes.size() < 3)  notes.add (msg.getNoteNumber());
+        else if (msg.isNoteOff()) notes.removeValue (msg.getNoteNumber());
     }
+    
+    midi.clear();
+    
+    if ((time + numSamples) >= noteDuration)
+    {
+        const int offset = jmax (0, jmin ((int) (noteDuration - time), numSamples - 1));
+        
+        if (lastNoteValue > 0)
+        {
+            midi.addEvent (MidiMessage::noteOff (1, lastNoteValue), offset);
+            lastNoteValue = -1;
+        }
+        
+        if (notes.size() > 0)
+        {
+            currentNote = (currentNote + 1) % notes.size();
+            lastNoteValue = notes[currentNote];
+            midi.addEvent (MidiMessage::noteOn  (1, lastNoteValue, (uint8) 127), offset);
+        }
+        
+    }
+    
+    time = (time + numSamples) % noteDuration;
 }
 
 //==============================================================================
