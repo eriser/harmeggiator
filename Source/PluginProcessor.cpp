@@ -24,7 +24,8 @@ HarmeggiatorAudioProcessor::HarmeggiatorAudioProcessor()
                      #endif
                        ),
       arpSpeed (0.1),
-      arpPattern (patternDown)
+      arpPattern (patternDown),
+      isItTrained(false)
 #endif
 {
 }
@@ -157,6 +158,18 @@ void HarmeggiatorAudioProcessor::processBlock (AudioSampleBuffer& buffer, MidiBu
     
     midi.clear();
     
+    if (prevIntervals != intervals) {
+        if (isItTrained == true && intervals.size() == 2)
+        {
+            Array <int> output = classificationObject.process(intervals);
+            arpSpeed = output[0] / 1000.0;
+            arpPattern = output[1];
+            std::cout << "input: " << intervals[0] << intervals[1] << std::endl;
+            std::cout << "output: " << output[0] << output[1] << std::endl;
+        }
+        prevIntervals = intervals;
+    }
+
     if ((time + numSamples) >= noteDuration)
     {
         const int offset = jmax (0, jmin ((int) (noteDuration - time), numSamples - 1));

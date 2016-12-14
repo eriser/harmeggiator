@@ -66,14 +66,17 @@ public:
     //==============================================================================
     float arpSpeed;
     int arpPattern;
-    Array<int> intervals;
-
+    Array<double> intervals;
+    Array<double> prevIntervals;
+    Classification classificationObject;
+    Array<Classification::DataSample> trainingSet;
+    bool isItTrained;
+    
 private:
     SortedSet<int> notes;
     int currentNote, lastNoteValue;
     int time;
     float rate;
-
     
     //==============================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (HarmeggiatorAudioProcessor)

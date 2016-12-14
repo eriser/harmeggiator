@@ -18,7 +18,7 @@
 //==============================================================================
 /**
 */
-class HarmeggiatorAudioProcessorEditor  : public AudioProcessorEditor
+class HarmeggiatorAudioProcessorEditor  : public AudioProcessorEditor, private Button::Listener, private Slider::Listener
 {
 public:
     HarmeggiatorAudioProcessorEditor (HarmeggiatorAudioProcessor&);
@@ -27,7 +27,8 @@ public:
     //==============================================================================
     void paint (Graphics&) override;
     void resized() override;
-    void buttonClicked(Button* button);
+    void buttonClicked(Button* button) override;
+    void sliderValueChanged(Slider* slider) override;
     void setLabels();
     bool keyPressed(const KeyPress &key) override;
     bool keyStateChanged(bool isKeyDown) override;
@@ -36,13 +37,10 @@ private:
     // This reference is provided as a quick way for your editor to
     // access the processor object that created it.
     HarmeggiatorAudioProcessor& processor;
-    
-    //==============================================================================
-    Classification classificationObject;
-    Array<Classification::DataSample> trainingSet;
 
     //==============================================================================
-    ScopedPointer<TextButton> buttonTraining, buttonClearTraining, buttonRun, buttonStop;
+    ScopedPointer<TextButton> buttonTraining, arpUp, arpDown;//, buttonClearTraining, buttonRun, buttonStop;
+    ScopedPointer<Slider> arpSpeedSlider;
     ScopedPointer<Label> labelInformation, labelTrainingSet;
     
 

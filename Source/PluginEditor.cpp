@@ -16,9 +16,33 @@
 HarmeggiatorAudioProcessorEditor::HarmeggiatorAudioProcessorEditor (HarmeggiatorAudioProcessor& p)
     : AudioProcessorEditor (&p), processor (p)
 {
+    
+    addAndMakeVisible(buttonTraining = new TextButton("Learn"));
+    buttonTraining->addListener(this);
+    
+    addAndMakeVisible(arpUp = new TextButton("Up"));
+    arpUp->addListener(this);
+    
+    addAndMakeVisible(arpDown = new TextButton("Down"));
+    arpDown->addListener(this);
+    
+    addAndMakeVisible(arpSpeedSlider = new Slider("Speed"));
+    arpSpeedSlider->setRange(0.0,1.0);
+    arpSpeedSlider->addListener(this);
+    
+    addAndMakeVisible(labelInformation = new Label("", ""));
+    addAndMakeVisible(labelTrainingSet = new Label("", ""));
+    setLabels();
+    
+    setWantsKeyboardFocus(true);
+    setExplicitFocusOrder(1);
+    
+    
+
     // Make sure that before the constructor has finished, you've set the
     // editor's size to whatever you need it to be.
     setSize (400, 300);
+    
 }
 
 HarmeggiatorAudioProcessorEditor::~HarmeggiatorAudioProcessorEditor()
@@ -39,38 +63,57 @@ void HarmeggiatorAudioProcessorEditor::resized()
 {
     // This is generally where you'll want to lay out the positions of any
     // subcomponents in your editor..
+    Rectangle<int> r (getLocalBounds());
+    
+    buttonTraining->setBounds (r.removeFromLeft(r.getWidth() / 2).removeFromTop(r.getHeight()/2).reduced (10));
+    
+    Rectangle<int> radioArea (r.removeFromTop(r.getHeight() / 2).reduced (10));
+    
+    const int numRadioButtons (2);
+    const int radioButtonWidth (radioArea.getWidth() / numRadioButtons);
+    
+    arpUp->setBounds (radioArea.removeFromLeft (radioButtonWidth).reduced(5));
+    arpDown->setBounds (radioArea.removeFromLeft (radioButtonWidth).reduced(5));
+
+    r = getLocalBounds().removeFromBottom(r.getHeight()/2);
+    
+    arpSpeedSlider->setBounds (r.removeFromTop(r.getHeight()/2).reduced (10));
+    
+    labelTrainingSet->setBounds (r.removeFromTop(r.getHeight()/2));
+    labelInformation->setBounds (r);
 }
 
 void HarmeggiatorAudioProcessorEditor::setLabels()
 {
     String strTrainingSet;
-    strTrainingSet = String(trainingSet.size()) + " sample" + (trainingSet.size()>1 ? "s" : "") + " in the training set";
+    strTrainingSet = String(processor.trainingSet.size()) + " sample" + (processor.trainingSet.size()>1 ? "s" : "") + " in the training set";
     labelTrainingSet->setText(strTrainingSet, dontSendNotification);
     
     String strInformation;
-    strInformation = "To train the classification algorithm, select a pattern LED, put your cursor in the mouse zone, "
+    strInformation = "To train the classifier, select your arp params, play a chord shape, "
     "and push the space bar.";
     labelInformation->setText(strInformation, dontSendNotification);
     
-    strInformation = "When you have three or more samples in your training set, click on the Training button and then on the Run button.";
+    strInformation = "When you have three or more samples in your training set, click on the Learn button.";
 }
 
 void HarmeggiatorAudioProcessorEditor::buttonClicked(Button* button)
 {
-    if (button == buttonRun)
+    if (button == arpUp)
     {
-        // insert logic here
+        processor.arpPattern = processor.patternUp;
     }
-    else if (button == buttonStop)
+    else if (button == arpDown)
     {
-        // insert logic here
+        processor.arpPattern = processor.patternDown;
     }
     else if (button == buttonTraining)
     {
-        if (trainingSet.size() > 2)
+        if (processor.trainingSet.size() > 2)
         {
-            classificationObject.train(trainingSet);
+            processor.classificationObject.train(processor.trainingSet);
             setLabels();
+            processor.isItTrained = true;
         }
         else
         {
@@ -79,20 +122,31 @@ void HarmeggiatorAudioProcessorEditor::buttonClicked(Button* button)
     }
 }
 
+void HarmeggiatorAudioProcessorEditor::sliderValueChanged(Slider* slider)
+{
+    if (slider == arpSpeedSlider)
+    {
+        processor.arpSpeed = arpSpeedSlider->getValue();
+    }
+}
+
 bool HarmeggiatorAudioProcessorEditor::keyPressed(const KeyPress &key)
 {
     if (key.getKeyCode() == KeyPress::spaceKey && canWaitForOtherKeypresses)
     {
-//        Array <double> input = 
+        if (processor.intervals.size() == 2)
+        {
+            Classification::DataSample example;
         
-        Classification::DataSample example;
-//        example.inputs.addArray({ input[0], input[1] });
-//        example.outputs.addArray({ output[0], output[1] });
-        
-        trainingSet.add(example);
-        setLabels();
-        
-        canWaitForOtherKeypresses = false;
+            std::cout << "training example: " << processor.intervals[0] << processor.intervals[1] << std::endl;
+            example.inputs.addArray(processor.intervals);
+            example.outputs.addArray({ static_cast<int> (1000 * processor.arpSpeed), processor.arpPattern });
+            
+            processor.trainingSet.add(example);
+            setLabels();
+            
+            canWaitForOtherKeypresses = false;
+        }
     }
     
     return true;
