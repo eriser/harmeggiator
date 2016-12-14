@@ -23,7 +23,8 @@ HarmeggiatorAudioProcessor::HarmeggiatorAudioProcessor()
                        .withOutput ("Output", AudioChannelSet::stereo(), true)
                      #endif
                        ),
-       arpSpeed(0.1)
+      arpSpeed (0.1),
+      arpPattern (patternDown)
 #endif
 {
 }
@@ -95,7 +96,6 @@ void HarmeggiatorAudioProcessor::prepareToPlay (double sampleRate, int samplesPe
     lastNoteValue = -1;
     time = 0.0;
     rate = static_cast<float> (sampleRate);
-    arpSpeed = 0.1;
 }
 
 void HarmeggiatorAudioProcessor::releaseResources()
@@ -148,6 +148,13 @@ void HarmeggiatorAudioProcessor::processBlock (AudioSampleBuffer& buffer, MidiBu
         else if (msg.isNoteOff()) notes.removeValue (msg.getNoteNumber());
     }
     
+    intervals.clear();
+    for (int i = 0; i < notes.size() - 1; ++i)
+    {
+        const int interval = notes[i + 1] - notes[i];
+        intervals.add (interval);
+    }
+    
     midi.clear();
     
     if ((time + numSamples) >= noteDuration)
@@ -162,7 +169,13 @@ void HarmeggiatorAudioProcessor::processBlock (AudioSampleBuffer& buffer, MidiBu
         
         if (notes.size() > 0)
         {
-            currentNote = (currentNote + 1) % notes.size();
+            if (arpPattern == patternUp) currentNote++;
+            else if (arpPattern == patternDown) currentNote--;
+            else jassertfalse; // oops!
+            
+            if (currentNote >= notes.size()) currentNote = 0;
+            if (currentNote < 0) currentNote = notes.size() - 1;
+            
             lastNoteValue = notes[currentNote];
             midi.addEvent (MidiMessage::noteOn  (1, lastNoteValue, (uint8) 127), offset);
         }

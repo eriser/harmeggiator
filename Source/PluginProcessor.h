@@ -23,6 +23,13 @@ public:
     //==============================================================================
     HarmeggiatorAudioProcessor();
     ~HarmeggiatorAudioProcessor();
+    
+    //==============================================================================
+    enum Pattern
+    {
+       patternUp,
+       patternDown
+    };
 
     //==============================================================================
     void prepareToPlay (double sampleRate, int samplesPerBlock) override;
@@ -55,14 +62,18 @@ public:
     //==============================================================================
     void getStateInformation (MemoryBlock& destData) override;
     void setStateInformation (const void* data, int sizeInBytes) override;
-
-private:
+    
     //==============================================================================
     float arpSpeed;
+    int arpPattern;
+    Array<int> intervals;
+
+private:
+    SortedSet<int> notes;
     int currentNote, lastNoteValue;
     int time;
     float rate;
-    SortedSet<int> notes;
+
     
     //==============================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (HarmeggiatorAudioProcessor)
