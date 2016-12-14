@@ -255,7 +255,7 @@
  #define JucePlugin_Desc                   "Harmeggiator"
 #endif
 #ifndef  JucePlugin_Manufacturer
- #define JucePlugin_Manufacturer           "harmeggiator"
+ #define JucePlugin_Manufacturer           "Harmeggiator"
 #endif
 #ifndef  JucePlugin_ManufacturerWebsite
  #define JucePlugin_ManufacturerWebsite    ""

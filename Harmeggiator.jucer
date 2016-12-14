@@ -4,7 +4,7 @@
               bundleIdentifier="com.harmeggiator.Harmeggiator" includeBinaryInAppConfig="1"
               buildVST="1" buildVST3="0" buildAU="1" buildAUv3="0" buildRTAS="0"
               buildAAX="0" pluginName="Harmeggiator" pluginDesc="Harmeggiator"
-              pluginManufacturer="harmeggiator" pluginManufacturerCode="Hmgr"
+              pluginManufacturer="Harmeggiator" pluginManufacturerCode="Hmgr"
               pluginCode="Hmgr" pluginChannelConfigs="" pluginIsSynth="0" pluginWantsMidiIn="0"
               pluginProducesMidiOut="0" pluginIsMidiEffectPlugin="1" pluginEditorRequiresKeys="0"
               pluginAUExportPrefix="HarmeggiatorAU" pluginRTASCategory="" aaxIdentifier="com.harmeggiator.Harmeggiator"
@@ -27,20 +27,20 @@
         <CONFIGURATION name="Release" isDebug="0" optimisation="3" targetName="Harmeggiator"/>
       </CONFIGURATIONS>
       <MODULEPATHS>
-        <MODULEPATH id="juce_core" path="../../sdks/juce/modules"/>
-        <MODULEPATH id="juce_events" path="../../sdks/juce/modules"/>
-        <MODULEPATH id="juce_graphics" path="../../sdks/juce/modules"/>
-        <MODULEPATH id="juce_data_structures" path="../../sdks/juce/modules"/>
-        <MODULEPATH id="juce_gui_basics" path="../../sdks/juce/modules"/>
-        <MODULEPATH id="juce_gui_extra" path="../../sdks/juce/modules"/>
-        <MODULEPATH id="juce_cryptography" path="../../sdks/juce/modules"/>
-        <MODULEPATH id="juce_video" path="../../sdks/juce/modules"/>
-        <MODULEPATH id="juce_opengl" path="../../sdks/juce/modules"/>
-        <MODULEPATH id="juce_audio_basics" path="../../sdks/juce/modules"/>
-        <MODULEPATH id="juce_audio_devices" path="../../sdks/juce/modules"/>
-        <MODULEPATH id="juce_audio_formats" path="../../sdks/juce/modules"/>
-        <MODULEPATH id="juce_audio_processors" path="../../sdks/juce/modules"/>
-        <MODULEPATH id="juce_audio_plugin_client" path="../../sdks/juce/modules"/>
+        <MODULEPATH id="juce_core" path="../juce/modules"/>
+        <MODULEPATH id="juce_events" path="../juce/modules"/>
+        <MODULEPATH id="juce_graphics" path="../juce/modules"/>
+        <MODULEPATH id="juce_data_structures" path="../juce/modules"/>
+        <MODULEPATH id="juce_gui_basics" path="../juce/modules"/>
+        <MODULEPATH id="juce_gui_extra" path="../juce/modules"/>
+        <MODULEPATH id="juce_cryptography" path="../juce/modules"/>
+        <MODULEPATH id="juce_video" path="../juce/modules"/>
+        <MODULEPATH id="juce_opengl" path="../juce/modules"/>
+        <MODULEPATH id="juce_audio_basics" path="../juce/modules"/>
+        <MODULEPATH id="juce_audio_devices" path="../juce/modules"/>
+        <MODULEPATH id="juce_audio_formats" path="../juce/modules"/>
+        <MODULEPATH id="juce_audio_processors" path="../juce/modules"/>
+        <MODULEPATH id="juce_audio_plugin_client" path="../juce/modules"/>
       </MODULEPATHS>
     </XCODE_MAC>
   </EXPORTFORMATS>
