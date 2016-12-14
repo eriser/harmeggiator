@@ -27,11 +27,27 @@ public:
     //==============================================================================
     void paint (Graphics&) override;
     void resized() override;
-
+    void buttonClicked(Button* button);
+    void setLabels();
+    bool keyPressed(const KeyPress &key) override;
+    bool keyStateChanged(bool isKeyDown) override;
+    
 private:
     // This reference is provided as a quick way for your editor to
     // access the processor object that created it.
     HarmeggiatorAudioProcessor& processor;
+    
+    //==============================================================================
+    Classification classificationObject;
+    Array<Classification::DataSample> trainingSet;
+
+    //==============================================================================
+    ScopedPointer<TextButton> buttonTraining, buttonClearTraining, buttonRun, buttonStop;
+    ScopedPointer<Label> labelInformation, labelTrainingSet;
+    
+
+    
+    bool canWaitForOtherKeypresses;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (HarmeggiatorAudioProcessorEditor)
 };
